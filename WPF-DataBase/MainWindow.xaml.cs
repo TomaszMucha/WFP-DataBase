@@ -4,6 +4,7 @@ using System.Data;
 using System.Windows.Controls;
 using System;
 using System.Windows.Data;
+using WpfApplication3.Model;
 
 namespace WpfApplication3
 {
@@ -79,51 +80,17 @@ namespace WpfApplication3
                 {
                     conn.Open();
                     DataRowView drv = (DataRowView)dataGrid1.SelectedItem;
+                    Order order = new Order((DateTime)drv[3], (DateTime)drv[4], (DateTime)drv[5], (int)drv[6], Decimal.Parse(drv[7].ToString()), drv[8]?.ToString(), drv[9]?.ToString(), drv[10]?.ToString(),
+                        drv[11]?.ToString(), drv[12]?.ToString(), drv[13]?.ToString());
 
-                    UpdateOrder uo = new UpdateOrder();
-                    uo.OrderDateDatePicker.DisplayDate = (DateTime)drv[3];
-                    uo.RequiredDateDatePicker.DisplayDate = (DateTime)drv[4];
-                    uo.ShippedDateDatePicker.DisplayDate = (DateTime)drv[5];
-                    uo.FreightTextBox.Text = drv[7].ToString();
-                    uo.ShipNameTextBox.Text = drv[8]?.ToString(); ;
-                    uo.ShipAddressTextBox.Text = drv[9]?.ToString();
-                    uo.ShipCityTextBox.Text = drv[10]?.ToString();
-                    uo.ShipRegionTextBox.Text = drv[11]?.ToString();
-                    uo.ShipPostalTextBox.Text = drv[12]?.ToString();
-                    uo.ShipCountryTextBox.Text =drv[13]?.ToString();
-                    uo.ShowDialog();
-                    
+                    Services.DataBaseOperation.UpdateOrder(order, (int)((DataRowView)dataGrid1.SelectedItem)[0]);
 
-                    string query = "UPDATE Orders " +
-                            "SET OrderDate = @orderDate, RequiredDate = @requiredDate, ShippedDate = @shippedDate, Freight = @freight," +
-                            " ShipName = @shipName, ShipAddress = @shipAddress, ShipCity = @shipCity, ShipRegion = shipRegion, " +
-                            "ShipPostalCode = @shipPostalCode, ShipCountry = @shipCountry" +
-                            " WHERE orderid=@id";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.Add("@orderDate", SqlDbType.Date).Value = uo.OrderDateDatePicker.DisplayDate;
-                        cmd.Parameters.Add("@requiredDate", SqlDbType.Date).Value = uo.RequiredDateDatePicker.DisplayDate;
-                        cmd.Parameters.Add("@shippedDate", SqlDbType.Date).Value = uo.ShippedDateDatePicker.DisplayDate;
-                        cmd.Parameters.Add("@freight", SqlDbType.Money).Value = $"{uo.FreightTextBox.Text:C2}";
-                        cmd.Parameters.Add("@shipName", SqlDbType.Text).Value = uo.ShipNameTextBox.Text;
-                        cmd.Parameters.Add("@shipAddress", SqlDbType.Text).Value = uo.ShipAddressTextBox.Text;
-                        cmd.Parameters.Add("@shipCity", SqlDbType.Text).Value = uo.ShipCityTextBox.Text;
-                        cmd.Parameters.Add("@shipRegion", SqlDbType.Text).Value = uo.ShipRegionTextBox.Text;
-                        cmd.Parameters.Add("@shipPostalCode", SqlDbType.Text).Value = uo.ShipPostalTextBox.Text;
-                        cmd.Parameters.Add("@shipCountry", SqlDbType.Text).Value = uo.ShipCountryTextBox.Text;
-
-                        cmd.Parameters.Add("@id",SqlDbType.Int).Value= ((DataRowView)dataGrid1.SelectedItem)[0];
-
-                        cmd.ExecuteNonQuery();
-                        SqlCommand cmd2 = new SqlCommand("SELECT * FROM Orders", conn);
-                        SqlDataReader dr = cmd2.ExecuteReader();
-                        DataTable dt = new DataTable();
-                        dt.Load(dr);
-                        dataGrid1.ItemsSource = dt.AsDataView();
-                        conn.Close();
-                    }
-
+                    SqlCommand cmd2 = new SqlCommand("SELECT * FROM Orders", conn);
+                    SqlDataReader dr = cmd2.ExecuteReader();
+                    DataTable dt = new DataTable();
+                    dt.Load(dr);
+                    dataGrid1.ItemsSource = dt.AsDataView();
+                    conn.Close();
                 }
             }
         }
@@ -137,9 +104,9 @@ namespace WpfApplication3
                     conn.Open();
                     DataRowView drv = (DataRowView)dataGrid1.SelectedItem;
 
-                    string query = "DELETE FROM Orders WHERE orderid=@id";
+                    string deleteRowQuery = "DELETE FROM Orders WHERE orderid=@id";
 
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand(deleteRowQuery, conn))
                     {
 
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = ((DataRowView)dataGrid1.SelectedItem)[0];

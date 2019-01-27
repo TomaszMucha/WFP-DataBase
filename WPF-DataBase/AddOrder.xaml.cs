@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Windows;
 using WpfApplication3.Model;
 
@@ -22,7 +23,7 @@ namespace WpfApplication3
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Order order = new Order(OrderDateDatePicker.SelectedDate.Value.Date, RequiredDateDatePicker.SelectedDate.Value.Date,
-                                    ShippedDateDatePicker.SelectedDate.Value.Date, 3, Decimal.Parse($"FreightTextBox.Text:C2"),
+                                    ShippedDateDatePicker.SelectedDate.Value.Date, 3, Decimal.Parse(String.Format("{0:C2}",FreightTextBox.Text), NumberStyles.AllowDecimalPoint),
                                     ShipNameTextBox.Text, ShipAddressTextBox.Text, ShipCityTextBox.Text, ShipRegionTextBox.Text,
                                     ShipPostalTextBox.Text, ShipCountryTextBox.Text);
 

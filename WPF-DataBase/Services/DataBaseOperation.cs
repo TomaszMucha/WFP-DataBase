@@ -42,5 +42,51 @@ namespace WpfApplication3.Services
                 }
             }
         }
+
+        public static void UpdateOrder(Order order, int id)
+        {
+            using (var conn = new SqlConnection(MainWindow.ConnectionString))
+            {
+                conn.Open();
+                UpdateOrder uo = new UpdateOrder();
+                uo.OrderDateDatePicker.DisplayDate = order.OrderDate;
+                uo.RequiredDateDatePicker.DisplayDate = order.RequredDate;
+                uo.ShippedDateDatePicker.DisplayDate = order.ShippedDate;
+                uo.FreightTextBox.Text = order.Freight.ToString();
+                uo.ShipNameTextBox.Text = order.ShipName;
+                uo.ShipAddressTextBox.Text = order.ShipAddress;
+                uo.ShipCityTextBox.Text = order.ShipCity;
+                uo.ShipRegionTextBox.Text = order.ShipRegion;
+                uo.ShipPostalTextBox.Text = order.ShipPostalCode;
+                uo.ShipCountryTextBox.Text = order.ShipCountry;
+                uo.ShowDialog();
+
+                string query = "UPDATE Orders " +
+                        "SET OrderDate = @orderDate, RequiredDate = @requiredDate, ShippedDate = @shippedDate, Freight = @freight," +
+                        " ShipName = @shipName, ShipAddress = @shipAddress, ShipCity = @shipCity, ShipRegion = shipRegion, " +
+                        "ShipPostalCode = @shipPostalCode, ShipCountry = @shipCountry" +
+                        " WHERE orderid=@id";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.Add("@orderDate", SqlDbType.Date).Value = uo.OrderDateDatePicker.DisplayDate;
+                    cmd.Parameters.Add("@requiredDate", SqlDbType.Date).Value = uo.RequiredDateDatePicker.DisplayDate;
+                    cmd.Parameters.Add("@shippedDate", SqlDbType.Date).Value = uo.ShippedDateDatePicker.DisplayDate;
+                    cmd.Parameters.Add("@freight", SqlDbType.Money).Value = $"{uo.FreightTextBox.Text:C2}";
+                    cmd.Parameters.Add("@shipName", SqlDbType.Text).Value = uo.ShipNameTextBox.Text;
+                    cmd.Parameters.Add("@shipAddress", SqlDbType.Text).Value = uo.ShipAddressTextBox.Text;
+                    cmd.Parameters.Add("@shipCity", SqlDbType.Text).Value = uo.ShipCityTextBox.Text;
+                    cmd.Parameters.Add("@shipRegion", SqlDbType.Text).Value = uo.ShipRegionTextBox.Text;
+                    cmd.Parameters.Add("@shipPostalCode", SqlDbType.Text).Value = uo.ShipPostalTextBox.Text;
+                    cmd.Parameters.Add("@shipCountry", SqlDbType.Text).Value = uo.ShipCountryTextBox.Text;
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+
+            }
+        }
     }
 }
