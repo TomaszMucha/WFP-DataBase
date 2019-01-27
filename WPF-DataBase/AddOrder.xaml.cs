@@ -1,6 +1,8 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Windows;
+using WpfApplication3.Model;
 
 namespace WpfApplication3
 {
@@ -12,39 +14,20 @@ namespace WpfApplication3
         public AddOrder()
         {
             InitializeComponent();
+            this.OrderDateDatePicker.SelectedDate = DateTime.Now;
+            this.RequiredDateDatePicker.SelectedDate = DateTime.Now;
+            this.ShippedDateDatePicker.SelectedDate = DateTime.Now;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string connectionString = MainWindow.ConnectionString;
-            string query = "INSERT INTO Orders " +
-                    "(CustomerID, EmployeeID, OrderDate, RequiredDate, ShippedDate, ShipVia, Freight, ShipName, ShipAddress, " +
-                    "ShipCity, ShipRegion, ShipPostalCode, ShipCountry) " +
-                    "VALUES('vinet', 5, @orderDate, @requiredDate, @shippedDate, 3, @freight, @shipName," +
-                    " @shipAddress, @shipCity, @shipRegion, @shipPostalCode, @shipCountry)";
+            Order order = new Order(OrderDateDatePicker.SelectedDate.Value.Date, RequiredDateDatePicker.SelectedDate.Value.Date,
+                                    ShippedDateDatePicker.SelectedDate.Value.Date, 3, Decimal.Parse($"FreightTextBox.Text:C2"),
+                                    ShipNameTextBox.Text, ShipAddressTextBox.Text, ShipCityTextBox.Text, ShipRegionTextBox.Text,
+                                    ShipPostalTextBox.Text, ShipCountryTextBox.Text);
 
-            using (var conn = new SqlConnection(connectionString))
-            {
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    conn.Open();
-
-                    cmd.Parameters.Add("@orderDate", SqlDbType.Date).Value = OrderDateDatePicker.SelectedDate.Value.Date ;
-                    cmd.Parameters.Add("@requiredDate", SqlDbType.Date).Value = RequiredDateDatePicker.SelectedDate.Value.Date;
-                    cmd.Parameters.Add("@shippedDate", SqlDbType.Date).Value = ShippedDateDatePicker.SelectedDate.Value.Date;
-                    cmd.Parameters.Add("@freight", SqlDbType.Money).Value = $"{FreightTextBox.Text:C2}";
-                    cmd.Parameters.Add("@shipName", SqlDbType.Text).Value = ShipNameTextBox.Text;
-                    cmd.Parameters.Add("@shipAddress", SqlDbType.Text).Value = ShipAddressTextBox.Text;
-                    cmd.Parameters.Add("@shipCity", SqlDbType.Text).Value = ShipCityTextBox.Text;
-                    cmd.Parameters.Add("@shipRegion", SqlDbType.Text).Value = ShipRegionTextBox.Text;
-                    cmd.Parameters.Add("@shipPostalCode", SqlDbType.Text).Value = ShipPostalTextBox.Text;
-                    cmd.Parameters.Add("@shipCountry", SqlDbType.Text).Value = ShipCountryTextBox.Text;
-
-                    cmd.ExecuteNonQuery();
-                    conn.Close();
-                    Close();
-                }
-            }
+            Services.DataBaseOperation.AddOrder(order);
+            Close();
         }
     }
 }

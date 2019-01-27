@@ -77,6 +77,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\Order.cs" />
+    <Compile Include="Services\DataBaseOperation.cs" />
     <Compile Include="UpdateOrder.xaml.cs">
       <DependentUpon>UpdateOrder.xaml</DependentUpon>
     </Compile>
